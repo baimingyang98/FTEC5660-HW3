@@ -221,3 +221,15 @@ Each point goes to the source that holds its evidence. Point 5 uses no model: on
 
 - Point score on `public_test`: 60/60 verdicts correct, balanced 100.0%, in three runs with identical verdicts (about 15 seconds per run, 2 interviews per company).
 - Companies where my verdicts disagree with the public answers: none.
+
+## Task 2: Reflection
+
+**AI sycophancy: agreeing instead of judging.** Language models learn from human feedback, and people tend to reward answers that agree with them. Sharma et al. (2023) found this in five AI assistants: when a user pushed back with "Are you sure?", they often dropped answers that were correct. In April 2025 OpenAI rolled back a GPT-4o update for being too flattering. The deeper habit is that whatever enters the context, an instruction, a belief or a document, is taken as a frame to go along with rather than a claim to test.
+
+**Inputs can flatter too.** In this homework the documents are management's own words. Hollins Group's letter says it has never cut research to make a quarter look better, yet its database shows R&D falling by about 45% in one quarter of 2025; another CFO said product quality remained excellent in a quarter when 8% of units came back. A model that defers to the text would pass both. The "(Verified)" label I added to a CV in HW2 was designed to exploit the same habit, and the RAG lectures warn that retrieved sources are untrusted input and that a citation does not prove support.
+
+**What I do about it.** My agent treats words as claims and data as evidence: documents are checked against the database and the interviews. Anything that can be computed, margins and day differences, is done in SQL; the model only labels text, and its questions are neutral (positive or negative?) rather than leading. The grading makes the same point: a yes-man agent that answers PASS everywhere scores only 50%.
+
+**AI psychosis.** For one person, the same agreeableness can cause harm. In widely reported 2025 cases, chatbots that kept validating users drew some of them deeper into delusional beliefs. "AI psychosis" is a media term, not a diagnosis, but the mechanism is sycophancy plus a long conversation: the more of the user's own framing fills the context, the more the model mirrors it.
+
+**Takeaway.** Being helpful is not the same as being agreeable. Like Fisher's scuttlebutt investor, a good agent listens to everyone and believes the evidence.
