@@ -171,7 +171,6 @@ companies with the same tools and the same answer key rules, but different
 names and wording, and scores your 3 points only.
 
 ## Homework 3 solution:
-> to students: this is your report, see the homework description.
 
 `CHOSEN_POINTS = [7, 5, 15]`: one point from each kind of evidence (database, scuttlebutt, management's words checked against records).
 
