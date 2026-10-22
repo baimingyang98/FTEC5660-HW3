@@ -173,11 +173,51 @@ names and wording, and scores your 3 points only.
 ## Homework 3 solution:
 > to students: this is your report, see the homework description.
 
+`CHOSEN_POINTS = [7, 5, 15]`: one point from each kind of evidence (database, scuttlebutt, management's words checked against records).
+
 ### My 3 points and rules
-> for each point: why you chose it, your PASS rule in one or two sentences, and the evidence it uses. Quote Fisher where it helps.
+
+**Point 5: Does the company have a worthwhile profit margin?**
+- Why: Fisher calls this the point that properly lends itself to mathematical analysis, and he judges a margin against the industry: the big long-range gains came from companies with relatively broad margins, usually among the best in their industry, while marginal companies should be avoided (pp. 62 to 63).
+- Rule: PASS if the operating margin of the latest full fiscal year, (revenue − cost of sales − selling and admin − R&D) ÷ revenue, is above the median operating margin of the company's industry.
+- Evidence: one SQL query over `orders`, `monthly_costs`, `company` and `industry_medians`; the comparison is done in SQL.
+
+**Point 7: Does the company have outstanding labor and personnel relations?**
+- Why: management's own praise of its people is not evidence, so labour relations have to be judged the way Fisher does it, from how the workers themselves feel: turnover, people wanting to join, grievances settled, fair pay, no strikes (pp. 65 to 67).
+- Rule: interview the two roles who know about working conditions; PASS if they describe good relations, FAIL if they report high turnover, constant overtime, low morale, strike threats or unfair pay.
+- Evidence: `interview(current_employee, working_conditions)` and `interview(former_employee, working_conditions)`, 2 of the 10 interviews.
+
+**Point 15: Does the company have a management of unquestionable integrity?**
+- Why: it is Fisher's one veto: whatever the other points say, if there is serious doubt about "a strong management sense of trusteeship for stockholders" he would not invest (p. 78). Insiders selling just before the market learns bad news is a direct, checkable sign of putting themselves first.
+- Rule: FAIL if a director or senior manager sold shares in the 60 days before a piece of bad news (profit warning, share-price fall, fine, lost contract, cut forecast); otherwise PASS.
+- Evidence: the dated items of the news file (`list_documents`, `read_document`) and `insider_trades`, with the day difference computed by `julianday()` in SQL.
 
 ### Design
-> a visualization of your agent design and one paragraph describing it.
+
+```text
+one company (5 companies run in parallel)
+ |
+ |-- Point 5  --> sql_query: operating margin of the latest full year
+ |                and the industry median, compared in SQL ---------------------> PASS / FAIL
+ |
+ |-- Point 7  --> interview x 2: current_employee, former_employee
+ |                (topic: working_conditions)
+ |                --> model: is each answer positive or negative? -------------> PASS / FAIL
+ |
+ |-- Point 15 --> read_document: the news file (dates read by code)
+ |                --> sql_query with julianday: insider sales 0 to 60 days
+ |                    before each news item
+ |                --> no such sale: PASS
+ |                --> sale found: model: is that news item bad news? ----------> PASS / FAIL
+ |
+ |-- if a point fails --> create_agent with the 4 tools tries it again --------> PASS / FAIL
+ |
+ '-- 3 verdicts and their evidence --> model: summary in 2 or 3 sentences
+```
+
+Each point goes to the source that holds its evidence. Point 5 uses no model: one SQL query computes the margin and compares it with the industry median. Point 7 spends 2 of the 10 interviews, only on the two roles who know about working conditions, and the model labels each answer positive or negative. Point 15 first uses SQL to find news items that came at most 60 days after an insider sale; only those items go to the model, which says whether they are bad news. All arithmetic and date differences are done in SQL; the model (`deepseek-v4-flash`, temperature 0) only reads text and writes the summary. If a point fails, a `create_agent` agent with the four tools retries it, and errors are caught for each company, so every company always gets three verdicts.
 
 ### Results
-> your point score on `public_test`, the companies where your verdicts disagree with the public answers, and why.
+
+- Point score on `public_test`: 60/60 verdicts correct, balanced 100.0%, in three runs with identical verdicts (about 15 seconds per run, 2 interviews per company).
+- Companies where my verdicts disagree with the public answers: none.

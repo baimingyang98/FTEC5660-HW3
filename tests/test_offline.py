@@ -39,14 +39,16 @@ class FakeModel:
 
     async def ainvoke(self, prompt: str) -> SimpleNamespace:
         if "Fisher's point 7" in prompt:
+            # Keywords cannot read every answer ("low turnover" is good news), so the fake only reads the
+            # current employee's answer; the real model reads both and is checked on Colab.
             self._count("labour")
             stances = {}
             for line in prompt.splitlines():
-                match = re.match(r"^(current_employee|former_employee|customer|competitor|supplier): (.*)$", line)
+                match = re.match(r"^(current_employee|former_employee): (.*)$", line)
                 if not match:
                     continue
                 answer = match.group(2).lower()
-                if "comment" in answer:
+                if match.group(1) != "current_employee" or "comment" in answer:
                     stances[match.group(1)] = "no_information"
                 elif any(word in answer for word in self.NEGATIVE):
                     stances[match.group(1)] = "negative"
